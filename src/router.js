@@ -21,4 +21,9 @@ const router = createRouter({
   routes, // short for `routes: routes`
 })
 
+router.beforeEach((to, from, next) => {
+  if (to.path !== '/' && to.path !== '/god' && !sessionStorage.getItem('userId')) next({ path: '/' })
+  else next()
+})
+
 export default router

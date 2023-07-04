@@ -6,38 +6,50 @@ import http from "@/util/http";
 
 const activeName = ref("first");
 const showVote = ref(false);
+const userInfo = ref([])
+const votionInfo = ref([])
 
 import { getSocket } from "@/util/ws";
 onMounted(async () => {
   const socket = await getSocket();
   socket.addEventListener("message", (msg) => {
     const data = JSON.parse(msg.data);
+    console.log(data)
     if (data.vote) {
       showVote.value = true;
+      return;
     }
-    console.log(JSON.parse(msg.data));
+    if (data.type === "voteinfo") {
+      votionInfo.value = data.data;
+      return;
+    }
+    if (data.type === "useradd") {
+      console.log(data.data, 'useradd')
+      userInfo.value = data.data;
+      return;
+    }
   });
 });
 
 async function vote(type) {
-  const { data: res } = await http.get('/user/vote', {
+  const { data: res } = await http.get("/user/vote", {
     params: {
-      userId: sessionStorage.getItem('userId'),
-      serverId: sessionStorage.getItem('serverId'),
+      userId: sessionStorage.getItem("userId"),
+      serverId: sessionStorage.getItem("serverId"),
       votion: type,
-    }
-  })
+    },
+  });
   if (res.code === 0) {
     showVote.value = false;
   }
 }
 
 async function resetTurn() {
-  const { data: res } = await http.get('/turn/reset', {
+  const { data: res } = await http.get("/turn/reset", {
     params: {
-      serverId: sessionStorage.getItem('serverId'),
-    }
-  })
+      serverId: sessionStorage.getItem("serverId"),
+    },
+  });
   if (res.code === 0) {
     showVote.value = false;
   }
@@ -45,19 +57,17 @@ async function resetTurn() {
 </script>
 
 <template>
-  <div class="mb-4 mt-4 flex justify-center text-[#606266] text-3xl">阿瓦隆投票器</div>
-  <el-tabs
-    :stretch="true"
-    v-model="activeName"
-    class="demo-tabs"
-  >
+  <div class="mb-4 mt-4 flex justify-center text-[#606266] text-3xl">
+    阿瓦隆投票器
+  </div>
+  <el-tabs :stretch="true" v-model="activeName" class="demo-tabs">
     <el-tab-pane name="first"
       ><template v-slot:label>🎮玩家</template>
-      <vote-comp></vote-comp>
+      <vote-comp :data="votionInfo"></vote-comp>
     </el-tab-pane>
     <el-tab-pane label="发车" name="second"
       ><template v-slot:label>🚜发车</template>
-      <pick-comp></pick-comp>
+      <pick-comp :data="userInfo"></pick-comp>
     </el-tab-pane>
   </el-tabs>
 

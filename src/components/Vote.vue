@@ -30,10 +30,30 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+const props = defineProps({
+  data: Object,
+});
+
+import { ref, watch } from "vue";
 import http from "@/util/http";
 
 const votion = ref([]);
+
+watch(() => props.data, () => {
+  console.log(props.data)
+  const result = props.data;
+  votion.value = [];
+  Object.keys(result).forEach((v) => {
+    const agree = [];
+    const disagree = [];
+    result[v].turnsInfo.forEach((voteFlag) => {
+      voteFlag ? agree.push(voteFlag) : disagree.push(voteFlag);
+    });
+    result[v].agree = agree;
+    result[v].disagree = disagree;
+    votion.value.push({ turnIndex: parseInt(v) + 1, ...result[v] });
+  });
+});
 
 async function getVoteStatus() {
   // 重置状态
