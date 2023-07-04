@@ -35,6 +35,7 @@ import { reactive } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 import http from "@/util/http";
+import { initSocket } from "@/util/ws";
 const startInfo = reactive({
   serverId: "",
   userName: "",
@@ -66,6 +67,13 @@ async function join() {
     sessionStorage.setItem("serverId", userInfo.data.serverId);
     sessionStorage.setItem("userId", userInfo.data.userId);
     // 路由跳转至home
+    const socket = await initSocket();
+    socket.send(
+      JSON.stringify({
+        type: "online",
+        userId: userInfo.data.userId,
+      })
+    );
     router.push("/home");
   }
 }

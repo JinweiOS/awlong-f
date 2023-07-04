@@ -36,6 +36,8 @@ import http from "@/util/http";
 const votion = ref([]);
 
 async function getVoteStatus() {
+  // 重置状态
+  votion.value = [];
   const { data: voteStatus } = await http.get("/turns/info", {
     params: {
       serverId: sessionStorage.getItem("serverId") || "548235",

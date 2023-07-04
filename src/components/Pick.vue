@@ -7,7 +7,7 @@
     >
   </div>
   <div class="flex ml-4">
-    <el-button @click="launchNonTaskVoting">发起非任务投票</el-button>
+    <el-button @click="launchNonTaskVoting('nottask')">发起非任务投票</el-button>
   </div>
   <el-divider content-position="center">⚖️</el-divider>
   <div class="flex ml-4 mb-4 mt-4 text-[#606266]">
@@ -33,7 +33,7 @@
     </el-checkbox-group>
   </div>
   <div class="mt-4 flex justify-center">
-    <el-button @click="launchTaskVoting">发起任务投票</el-button>
+    <el-button @click="launchTaskVoting('task')">发起任务投票</el-button>
   </div>
 </template>
 <script setup>
@@ -46,17 +46,21 @@ onMounted(() => {
   getAllUsers();
 });
 
-async function launchNonTaskVoting() {
+async function launchNonTaskVoting(turnType) {
   // TODO: http请求，发起任务
   await http.post("/task/launch", {
-    ids: pickedUser.value,
+    ids: refUsers.value.map((user) => user.userId),
+    serverId: sessionStorage.getItem("serverId"),
+    turnType
   });
 }
 
 // 需要挑选用户信息
-async function launchTaskVoting() {
+async function launchTaskVoting(turnType) {
   await http.post("/task/launch", {
-    ids: refUsers.value.map((user) => user.userId),
+    ids: pickedUser.value,
+    serverId: sessionStorage.getItem("serverId"),
+    turnType
   });
 }
 
